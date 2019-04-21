@@ -7,36 +7,36 @@ using namespace std;
 extern int yylineno;
 
 enum DataType{
-	dt_none,
-	dt_int,
-	dt_char,
-	dt_string,
-	dt_float,
-	dt_bool,
-	dt_func,
-	dt_err
+	dt_none,           
+	dt_int,                    //data type integer
+	dt_char,                   // data type character
+	dt_string,                 // data type string
+	dt_float,                  // data type float
+	dt_bool,                   // data type bool
+	dt_func,                    // function
+	dt_err                      // error
 };
 
-// Nodes of the AST
+// Nodes of Abstract Syntax Tree
 class Node {
 private:
 	string type;			// lexeme class
 	string value;			// lexeme
-	DataType data_type;		// datatype of the node(if required)
+	DataType data_type;		// datatypes of the node(if it's req.)
 
 public:
-	int line_number;		// line number where the node is occuring
+	int line_number;		// line number of the node where it is occuring
 
 	// Children of the Nodes
-	Node *child1;
-	Node *child2;
-	Node *child3;
-	Node *child4;
+	Node *child1;               //1st child     
+	Node *child2;               //2nd child
+	Node *child3;               //3rd child
+	Node *child4;               //4th child
 
 	Node (string t, string v, Node *c1, Node *c2, Node *c3) {
-		type = t;
-		value = v;
-		data_type = dt_none;
+		type = t;                              
+		value = v;                             
+		data_type = dt_none;                    
 		child3 = c3;
 		child2 = c2;
 		child1 = c1;
@@ -45,34 +45,34 @@ public:
 	}
 
 	void addChild4(Node *c4){
-		child4 = c4;
+		child4 = c4;         //adding 4th child if
 	}
 
 	string getValue(){
-		return value;
+		return value;                //returns value
 	}
 
 	string getType(){
-		return type;
+		return type;               //returns type
 	}
 
-	DataType getDataType(){
-		return data_type;
+	DataType getDataType(){       
+		return data_type;           //returns data type 
 	}
 
 	void setDataType(DataType dt){
-		data_type = dt;
+		data_type = dt;                //stes the data type
 	}
 	// ~Node();
 };
 
 
-// Parameter of a function
+// Parameter of the fnction
 class Parameter
 {
 private:
-	string name;		// parameter name
-	DataType data_type;	// parameter data type
+	string name;		// parameter's name
+	DataType data_type;	// parameter's data type
 public:
 	Parameter(){}
 
@@ -81,24 +81,24 @@ public:
 	{}
 
 	DataType getDataType(){
-		return data_type;
+		return data_type;          //returns  data type
 	}
 
-	string getValue(){
-		return name;
+	string getValue(){       
+		return name;             //retunrs value and make that it's name                 
 	}
 
-	// ~Parameter();
+	
 };
 
 
-// Class for the Meta data of the symbol table
+// the Meta data class, of the symbol table
 class SymbolTableAux
 {
 private:
 	DataType data_type;		// datatype of the symbol
 
-	// if symbol is a function, then following are also required - return data type, parameter list, number of parameters
+	// in case symbol is fnction, these are also required - (return) data type, list of parameters, no. of parameters
 	// i.e. data_type = dt_func
 	DataType return_type;
 	vector <Parameter> parameter_list;
@@ -120,23 +120,23 @@ public:
 
 	}
 
-	DataType getDataType(){
-		return data_type;
+	DataType getDataType(){                   
+		return data_type;            //reurns data type
 	}
 
 	DataType getReturnDataType(){
-		return return_type;
+		return return_type;              //returns return data type for a function
 	}
 
 	vector<Parameter> getParameterList(){
-		return parameter_list;
+		return parameter_list;            //returns list of parameters
 	}
 
 	int getParameterCount(){
-		return parameter_count;
+		return parameter_count;               //returns total number of parameters
 	}
 
-	// ~SymbolTableAux();
+	
 };
 
 
@@ -144,9 +144,9 @@ class SymbolTable
 {
 private:
 	int scope;	// current maximum scope
-				// 0 => Global scope
+				// 0 implies Global scope
 
-	vector < map < string, SymbolTableAux > > symbols, backup_symbols;	// vector of maps at different scopes. vector[i] => map of symbols at scope i
+	vector < map < string, SymbolTableAux > > symbols, backup_symbols;	// vector of maps at diff. scopes. vector[i] imples map of symbols at scope i
 
 	string TYPE2STRING[8] = {"none", "int", "char", "string", "float", "bool", "func", "err"};
 
@@ -157,7 +157,7 @@ public:
 		symbols.push_back(map<string, SymbolTableAux>());	// empty symbols table at global scope
 	}
 
-	bool findInCurrentScope(string id){
+	bool findInCurrentScope(string id){                      //finds current scope value
 		if(symbols[scope].find(id) !=  symbols[scope].end()){
 			return true;
 		} else {
@@ -175,7 +175,7 @@ public:
 		return false;
 	}
 
-	void addVariableInCurrentScope(string id, DataType dt){
+	void addVariableInCurrentScope(string id, DataType dt){             //adds variable in current scope
 		symbols[scope][id] = SymbolTableAux(dt);
 	}
 
@@ -184,40 +184,40 @@ public:
 		return &symbols[0][id];
 	}
 
-	void addScope(){
+	void addScope(){                          //adds scope
 		scope++;
 		map<string, SymbolTableAux> newMap;
 		newMap.clear();
 		symbols.push_back(newMap);
 	}
 
-	void removeScope(){
+	void removeScope(){                    //removes scope
 		if(scope == 0)	return ;
 		scope--;
 		symbols.pop_back();
 	}
 
-	DataType getDataType(string id){
+	DataType getDataType(string id){                           //returns data type
 		for (int i = scope; i >= 0; i--)
 		{
 			if(symbols[i].find(id) !=  symbols[i].end()){
 				return (symbols[i].find(id))->second.getDataType();
 			}
 		}
-		return dt_none;
+		return dt_none;                    //if void then 
 	}
 
-	DataType getFunctionDataType(string id){
+	DataType getFunctionDataType(string id){                 //returns functions data type
 		for (int i = scope; i >= 0; i--)
 		{
 			if(symbols[i].find(id) !=  symbols[i].end()){
 				return (symbols[i].find(id))->second.getReturnDataType();
 			}
 		}
-		return dt_none;
+		return dt_none;                  //if void then
 	}
 
-	bool checkFunctionArgs(string id, vector<DataType> args_list) {
+	bool checkFunctionArgs(string id, vector<DataType> args_list) {        //checks all the arguments of a function
 		for (int i = scope; i >= 0; i--)
 		{
 			if(symbols[i].find(id) !=  symbols[i].end()){
@@ -240,7 +240,7 @@ public:
 		return false;
 	}
 
-	vector<string> getFunctionParameters(string id){
+	vector<string> getFunctionParameters(string id){             //returns all the parameter of a function
 		for (int i = scope; i >= 0; i--)
 		{
 			if(symbols[i].find(id) !=  symbols[i].end()){
